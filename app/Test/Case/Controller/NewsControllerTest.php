@@ -14,10 +14,16 @@ class NewsControllerTest extends ControllerTestCase {
  */
 	public $fixtures = array(
 		'app.news',
+		'app.category',
 		'app.topic',
 		'app.source',
+		'app.sourcecategory',
 		'app.user',
-		'app.attachment'
+		'app.group',
+		'app.access',
+		'app.role',
+		'app.attachment',
+		'app.module'
 	);
 
 /**

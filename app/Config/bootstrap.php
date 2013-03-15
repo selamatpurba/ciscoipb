@@ -169,7 +169,8 @@ Configure::write('Dispatcher.filters', array(
  * Configures default file logging options
  */
 App::uses('CakeLog', 'Log');
-CakePlugin::load(array('AclExtras','Tags'));
+CakePlugin::load(array('AclExtras','Tags','ElRte'));
+
 CakeLog::config('debug', array(
 	'engine' => 'FileLog',
 	'types' => array('notice', 'info', 'debug'),

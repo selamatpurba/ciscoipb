@@ -6,21 +6,17 @@ App::uses('AppController', 'Controller');
  * @property News $News
  */
 class NewsController extends AppController {
-public $names = 'News';
-public $helpers =array('Html');
-
+public $helpers = array( 'Editor' => array( 'className' => 'ElRte.ElRte' ));
 /**
  * index method
  *
  * @return void
  */
-
 	public function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->allow('index', 'view');
 	}
-
-
+	
 	public function index() {
 		$this->News->recursive = 0;
 		$this->set('news', $this->paginate());
@@ -34,11 +30,9 @@ public $helpers =array('Html');
  * @return void
  */
 	public function view($id = null) {
-		$this->loadModel('Attachment');
 		if (!$this->News->exists($id)) {
 			throw new NotFoundException(__('Invalid news'));
 		}
-
 		$options = array('conditions' => array('News.' . $this->News->primaryKey => $id));
 		$this->set('news', $this->News->find('first', $options));
 	}
@@ -55,14 +49,15 @@ public $helpers =array('Html');
 			If(!empty($this->request->data)){
 			   $data = array (
 					'News' => array(
-						'title' => $this->data['title'],
-						'body' => $this->data['body'],
-						'resume' => $this->data['resume'],
-						'topic_id' => $this->data['topic_id'],
-						'source_id' => $this->data['source_id'],
-						'who' => $this->data['who'],
-						'where' => $this->data['where'],
-						'tags' => $this->data['tags'],
+						'category_id' => $this->data['News']['category_id'],
+						'title' => $this->data['News']['title'],
+						'body' => $this->data['News']['body'],
+						'resume' => $this->data['News']['resume'],
+						'topic_id' => $this->data['News']['topic_id'],
+						'source_id' => $this->data['News']['source_id'],
+						'who' => $this->data['News']['who'],
+						'where' => $this->data['News']['where'],
+						'tags' => $this->data['News']['tags'],
 						'user_id' => $this->Session->read('Auth.User.id')
 					),		
 				);
@@ -81,13 +76,12 @@ public $helpers =array('Html');
 							$ext = pathinfo($name, PATHINFO_EXTENSION);
 							$type = $singkat[$a]['type'];
 							$size = $singkat[$a]['size'];
-							$tanggal = date('ymd-his');
-							$direktori = 'img/$name';				
+							$tanggal = date('ymd-his');	
 							If(!empty($type)) {
 								$path=dirname(dirname(__FILE__));
 								//debug($path);
 								$rename = sha1($name.$ext.date("YmdHis")).".".$ext;
-								move_uploaded_file($upload, $path.'/webroot/img/'.$rename);
+								move_uploaded_file($upload, $path.'/webroot/img/photos/'.$rename);
 								$sql="INSERT INTO attachments (`news_id`,`filename`,`type`) VALUES('".$news_id."', '".$rename."', '".$ext."')";
 								$this->Attachment->query($sql);
 							}
@@ -102,9 +96,11 @@ public $helpers =array('Html');
 				}
 			}
 		}	
+		$categories = $this->News->Category->find('list');
 		$topics = $this->News->Topic->find('list');
 		$sources = $this->News->Source->find('list');
-		$this->set(compact('topics', 'sources'));
+		$users = $this->News->User->find('list');
+		$this->set(compact('categories', 'topics', 'sources', 'users'));
 	}
 
 /**
@@ -134,8 +130,18 @@ public $helpers =array('Html');
 					),
 				);
 				$this->News->id= $id;
-
+				
 			if($this->News->save($data)){
+				$sql2="Select * from `attachments` WHERE  `news_id` = '".$id."'";
+				$selectimage = $this->Attachment->query($sql2);
+				$n = count($selectimage);
+				//debug($n);
+				//exit();
+				for($a=0;$a<$n;$a++) {
+					$image_name = $selectimage[$a]['attachments']['filename'];
+					$path = 'img/photos/'.$image_name;
+					$hapus = unlink($path);
+				}
 				$sql1="Delete from `attachments` WHERE  `news_id` = '".$id."'";
 				$this->Attachment->query($sql1);
 				$singkat=$this->request->data['Attachment']['filename'];
@@ -148,13 +154,12 @@ public $helpers =array('Html');
 						$ext = pathinfo($name, PATHINFO_EXTENSION);
 						$type = $singkat[$a]['type'];
 						$size = $singkat[$a]['size'];
-						$tanggal = date('ymd-his');
-						$direktori = 'img/$name';						
+						$tanggal = date('ymd-his');					
 						If(!empty($type)) {
 							$path=dirname(dirname(__FILE__));
 							//debug($path);
 							$rename = sha1($name.$ext.date("YmdHis")).".".$ext;
-							move_uploaded_file($upload, $path.'/webroot/img/'.$rename);
+							move_uploaded_file($upload, $path.'/webroot/img/photos/'.$rename);
 							$sql="INSERT INTO attachments (`news_id`,`filename`,`type`) VALUES('".$id."', '".$rename."', '".$ext."')";
 							$this->Attachment->query($sql);
 						}
@@ -169,9 +174,11 @@ public $helpers =array('Html');
 			$options = array('conditions' => array('News.' . $this->News->primaryKey => $id));
 			$this->request->data = $this->News->find('first', $options);
 		}
+		$categories = $this->News->Category->find('list');
 		$topics = $this->News->Topic->find('list');
 		$sources = $this->News->Source->find('list');
-		$this->set(compact('topics', 'sources'));
+		$users = $this->News->User->find('list');
+		$this->set(compact('categories', 'topics', 'sources', 'users'));
 	}
 
 /**
@@ -184,15 +191,19 @@ public $helpers =array('Html');
  */
 	public function delete($id = null) {
 		$this->loadModel('Attachment');
-		$data = $this->News->Attachment->find('first', array(
-			'conditions' => array('News.id' => $id),
-			'fields' => array('Attachment.filename')));
-		$image_name = $data['Attachment']['filename'];
-		//debug($data);
-		//exit();
+		$data = $this->News->find('first', array(
+			'conditions' => array('News.id' => $id)));
 		
-		$path = 'img/'.$image_name;
-		$hapus = unlink($path);
+		$n = count($data['Attachment']);
+		
+		for($a=0;$a<$n;$a++) {
+			$image_name = $data['Attachment'][$a]['filename'];
+			$path = 'img/photos/'.$image_name;
+			$hapus = unlink($path);
+		}
+		
+		//debug($hitung);
+		//exit();
 		
 		$this->News->id = $id;
 		if (!$this->News->exists()) {
@@ -208,6 +219,4 @@ public $helpers =array('Html');
 		$this->Session->setFlash(__('News was not deleted'));
 		$this->redirect(array('action' => 'index'));
 	}
-	
-	
 }

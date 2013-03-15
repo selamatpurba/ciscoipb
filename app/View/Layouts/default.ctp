@@ -35,8 +35,8 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 		echo $this->fetch('css');
 		echo $this->fetch('script');
 		
-		echo $this->Html->css(array('jquery-ui'));
-		echo $this->Html->script(array('jquery-1.9.1','jquery-ui'));
+		echo $this->Html->css(array('jquery-ui','elrte.min','elrte-inner'));
+		echo $this->Html->script(array('jquery-1.9.1','jquery-ui','elrte.min'));
 		echo $this->Html->script(array(strtolower($this->params['controller'])));
 		echo $this->App->js();
 	?>

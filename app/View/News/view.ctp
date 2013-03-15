@@ -6,6 +6,11 @@
 			<?php echo h($news['News']['id']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Category'); ?></dt>
+		<dd>
+			<?php echo $this->Html->link($news['Category']['title'], array('controller' => 'categories', 'action' => 'view', $news['Category']['id'])); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Title'); ?></dt>
 		<dd>
 			<?php echo h($news['News']['title']); ?>
@@ -21,30 +26,26 @@
 			<?php echo h($news['News']['resume']); ?>
 			&nbsp;
 		</dd>
-		
 		<dt><?php echo __('Attachment'); ?></dt>
 		<dd>
 			<?php foreach ($news['Attachment'] as $attachment): ?>
-			
-			
-
 			<?php
 				switch ($attachment['type']) {
 					case "jpg":
 					case "gif":
 					case "png":
 					case "bmp":
-						echo $this->Html->image($attachment['filename'], array('alt' => 'CakePHP'));
+						echo $this->Html->image("photos/".$attachment['filename'], array('alt' => 'CakePHP'));
 						break;
 					case "txt":
-						$path_txt = $this->webroot."img/".$attachment['filename'];
+						$path_txt = $this->webroot."img/photos/".$attachment['filename'];
 						echo "<iframe src=".$path_txt." width=400 height=400 frameborder=0 ></iframe>";
 						break;
 					case "mp4" or "MP4":
 					case "FLV" or "flv":
 					case "3gp" or "3GP":
 					case "mkv" or "MKV":
-						$path_txt = $this->webroot."img/".$attachment['filename'];
+						$path_txt = $this->webroot."img/photos/".$attachment['filename'];
 						echo "<video width=320 height=240 controls><source src=".$path_txt."></video>";
 						break;
 					
@@ -52,9 +53,7 @@
 						echo $attachment['filename'];
 						break;
 				}
-
 			?>
-
 			<br>
 			<?php endforeach; ?>
 		</dd>
@@ -66,11 +65,6 @@
 		<dt><?php echo __('Source'); ?></dt>
 		<dd>
 			<?php echo $this->Html->link($news['Source']['title'], array('controller' => 'sources', 'action' => 'view', $news['Source']['id'])); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Created'); ?></dt>
-		<dd>
-			<?php echo h($news['News']['created']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Who'); ?></dt>
@@ -93,6 +87,16 @@
 			<?php echo $this->Html->link($news['User']['id'], array('controller' => 'users', 'action' => 'view', $news['User']['id'])); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Created'); ?></dt>
+		<dd>
+			<?php echo h($news['News']['created']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Modified'); ?></dt>
+		<dd>
+			<?php echo h($news['News']['modified']); ?>
+			&nbsp;
+		</dd>
 	</dl>
 </div>
 <div class="actions">
@@ -102,6 +106,8 @@
 		<li><?php echo $this->Form->postLink(__('Delete News'), array('action' => 'delete', $news['News']['id']), null, __('Are you sure you want to delete # %s?', $news['News']['id'])); ?> </li>
 		<li><?php echo $this->Html->link(__('List News'), array('action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New News'), array('action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Categories'), array('controller' => 'categories', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Category'), array('controller' => 'categories', 'action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Topics'), array('controller' => 'topics', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Topic'), array('controller' => 'topics', 'action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Sources'), array('controller' => 'sources', 'action' => 'index')); ?> </li>
@@ -110,6 +116,8 @@
 		<li><?php echo $this->Html->link(__('New User'), array('controller' => 'users', 'action' => 'add')); ?> </li>
 		<li><?php echo $this->Html->link(__('List Attachments'), array('controller' => 'attachments', 'action' => 'index')); ?> </li>
 		<li><?php echo $this->Html->link(__('New Attachment'), array('controller' => 'attachments', 'action' => 'add')); ?> </li>
+		<li><?php echo $this->Html->link(__('List Modules'), array('controller' => 'modules', 'action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('New Module'), array('controller' => 'modules', 'action' => 'add')); ?> </li>
 	</ul>
 </div>
 <div class="related">
@@ -144,6 +152,43 @@
 	<div class="actions">
 		<ul>
 			<li><?php echo $this->Html->link(__('New Attachment'), array('controller' => 'attachments', 'action' => 'add')); ?> </li>
+		</ul>
+	</div>
+</div>
+<div class="related">
+	<h3><?php echo __('Related Modules'); ?></h3>
+	<?php if (!empty($news['Module'])): ?>
+	<table cellpadding = "0" cellspacing = "0">
+	<tr>
+		<th><?php echo __('Id'); ?></th>
+		<th><?php echo __('News Id'); ?></th>
+		<th><?php echo __('Title'); ?></th>
+		<th><?php echo __('Body'); ?></th>
+		<th><?php echo __('Created'); ?></th>
+		<th class="actions"><?php echo __('Actions'); ?></th>
+	</tr>
+	<?php
+		$i = 0;
+		foreach ($news['Module'] as $module): ?>
+		<tr>
+			<td><?php echo $module['id']; ?></td>
+			<td><?php echo $module['news_id']; ?></td>
+			<td><?php echo $module['title']; ?></td>
+			<td><?php echo $module['body']; ?></td>
+			<td><?php echo $module['created']; ?></td>
+			<td class="actions">
+				<?php echo $this->Html->link(__('View'), array('controller' => 'modules', 'action' => 'view', $module['id'])); ?>
+				<?php echo $this->Html->link(__('Edit'), array('controller' => 'modules', 'action' => 'edit', $module['id'])); ?>
+				<?php echo $this->Form->postLink(__('Delete'), array('controller' => 'modules', 'action' => 'delete', $module['id']), null, __('Are you sure you want to delete # %s?', $module['id'])); ?>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+	</table>
+<?php endif; ?>
+
+	<div class="actions">
+		<ul>
+			<li><?php echo $this->Html->link(__('New Module'), array('controller' => 'modules', 'action' => 'add')); ?> </li>
 		</ul>
 	</div>
 </div>

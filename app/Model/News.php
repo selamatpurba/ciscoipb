@@ -3,16 +3,14 @@ App::uses('AppModel', 'Model');
 /**
  * News Model
  *
+ * @property Category $Category
  * @property Topic $Topic
  * @property Source $Source
  * @property User $User
  * @property Attachment $Attachment
+ * @property Module $Module
  */
 class News extends AppModel {
-    var $actsAs = array(
-               'Tags.Taggable',
-               //'Containable'
-       );
 
 /**
  * Validation rules
@@ -20,6 +18,16 @@ class News extends AppModel {
  * @var array
  */
 	public $validate = array(
+		'category_id' => array(
+			'numeric' => array(
+				'rule' => array('numeric'),
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
 		'title' => array(
 			'notempty' => array(
 				'rule' => array('notempty'),
@@ -50,65 +58,35 @@ class News extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'filename' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'topic_id' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'source_id' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
 		'who' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			//'notempty' => array(
+			//	'rule' => array('notempty'),
+			//	//'message' => 'Your custom message here',
+			//	//'allowEmpty' => false,
+			//	//'required' => false,
+			//	//'last' => false, // Stop validation after this rule
+			//	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			//),
 		),
 		'where' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			//'notempty' => array(
+			//	'rule' => array('notempty'),
+			//	//'message' => 'Your custom message here',
+			//	//'allowEmpty' => false,
+			//	//'required' => false,
+			//	//'last' => false, // Stop validation after this rule
+			//	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			//),
 		),
 		'tags' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			//'notempty' => array(
+			//	'rule' => array('notempty'),
+			//	//'message' => 'Your custom message here',
+			//	//'allowEmpty' => false,
+			//	//'required' => false,
+			//	//'last' => false, // Stop validation after this rule
+			//	//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			//),
 		),
 	);
 
@@ -120,6 +98,13 @@ class News extends AppModel {
  * @var array
  */
 	public $belongsTo = array(
+		'Category' => array(
+			'className' => 'Category',
+			'foreignKey' => 'category_id',
+			'conditions' => '',
+			'fields' => '',
+			'order' => ''
+		),
 		'Topic' => array(
 			'className' => 'Topic',
 			'foreignKey' => 'topic_id',
@@ -151,6 +136,19 @@ class News extends AppModel {
 	public $hasMany = array(
 		'Attachment' => array(
 			'className' => 'Attachment',
+			'foreignKey' => 'news_id',
+			'dependent' => false,
+			'conditions' => '',
+			'fields' => '',
+			'order' => '',
+			'limit' => '',
+			'offset' => '',
+			'exclusive' => '',
+			'finderQuery' => '',
+			'counterQuery' => ''
+		),
+		'Module' => array(
+			'className' => 'Module',
 			'foreignKey' => 'news_id',
 			'dependent' => false,
 			'conditions' => '',
